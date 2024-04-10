@@ -1,0 +1,250 @@
+use CareerHubsys;
+show tables;
+insert into company(name, location)
+values
+('Infosys', 'Bangalore'),
+('Tata Consultancy Services', 'Mumbai'),
+('Wipro Limited', 'Bangalore'),
+('HCL Technologies', 'Noida'),
+('Tech Mahindra', 'Pune');
+
+insert into jobs(title, description, location, salary, JobType, posted_date, company_id)
+values
+('Software Engineer', 'Develop and maintain software applications.', 'Bangalore', 1200000, 'Full-time', '2024-04-10',1),
+('Data Analyst', 'Analyze and interpret data to provide insights.', 'Mumbai', 1000000, 'Full-time', '2024-04-09',2),
+('Network Engineer', 'Design, implement and manage networks.', 'Noida', 1100000, 'Full-time', '2024-04-08',3),
+('Cybersecurity Specialist', 'Protect systems and networks from cyber threats.', 'Pune', 1300000, 'Full-time', '2024-04-07',4),
+('Web Developer', 'Create and maintain websites and web applications.', 'Bangalore', 1000000, 'Full-time', '2024-04-06',5);
+
+insert into jobs(title, description, location, salary, JobType, posted_date, company_id)
+values ('Blockchain Engineer', 'Develop CI/CD solutions', 'Banglore', 1300000, 'Full-time', '2024-02-28', 4);
+select * from jobs;
+insert into applicants(first_name,last_name,email,phone,resume) values
+('Aarav', 'Patel', 'aarav.patel@example.com', '987-654-3210', 'Aarav_Patel_Resume_Text'),
+('Ananya', 'Sharma', 'ananya.sharma@example.com', '123-456-7890', 'Ananya_Sharma_Resume_Text'),
+('Aaradhya', 'Singh', 'aaradhya.singh@example.com', '555-555-5555', 'Aaradhya_Singh_Resume_Text'),
+('Advik', 'Jha', 'advik.jha@example.com', '444-444-4444', 'Advik_Jha_Resume_Text'),
+('Ishaan', 'Verma', 'ishaan.verma@example.com', '777-777-7777', 'Ishaan_Verma_Resume_Text');
+
+insert into applicants(first_name,last_name,email,phone,resume) values
+('Isha', 'Agrawal', 'isha.agr@example.com', '777-777-7757', 'Isha_agr_Resume_Text');
+insert into applications(jobs_id,applicants_id,application_date,cover_letter) values
+(6, 1, '2024-04-10', 'Passionate software engineer eager to contribute.'),
+(7, 2, '2024-04-09', 'Experienced data analyst seeking challenges.'),
+(8, 3, '2024-04-08', 'Network engineer ready for action.'),
+(9, 4, '2024-04-07', 'Cybersecurity enthusiast ready to protect.'),
+(10, 5, '2024-04-06', 'Web developer excited to innovate.');
+
+
+DELETE from applications WHERE id>5;
+-- Tasks --
+/*5. Write an SQL query to count the number of applications received for each job listing in the
+"Jobs' table. Display the job title and the corresponding application count. 
+Ensure that it lists all jobs, even if they have no applications.
+projection: applicantions, jobs
+criteria: jobs
+*/
+select j.title, count(ap.id) as count_of_applications
+from jobs j left join applications ap on j.id=ap.jobs_id
+group by j.id;
+/*Software Engineer	1
+Data Analyst	1
+Network Engineer	1
+Cybersecurity Specialist	1
+Web Developer	1
+Blockchain Engineer	0*/
+/*6.
+Develop an SQL. query that retrieves job listings from the "Jobs table within a specified salary range.
+Allow parameters for the minimum and maximum salary values. Display the job title, company name, location
+,and salary for each matching job.
+*/
+select j.title, c.name, j.location , j.salary
+from company c join jobs j on c.id=j.company_id
+where j.salary between 1000000 and 1300000;
+/*	title	name	location	salary
+	Software Engineer	Infosys	Bangalore	1200000
+	Data Analyst	Tata Consultancy Services	Mumbai	1000000
+	Network Engineer	Wipro Limited	Noida	1100000
+	Cybersecurity Specialist	HCL Technologies	Pune	1300000
+	Blockchain Engineer	HCL Technologies	Banglore	1300000
+	Web Developer	Tech Mahindra	Bangalore	1000000
+*/
+/*7.
+Wite an SQL query that retrieves the job application history for a specific applicant. Allow a
+parameter for the ApplicantID, and return a result set with the job titles, company names, and
+application dates for all the jobs the applicant has applied to.
+*/
+select c.name, j.title, ap.application_date 
+from applications ap 
+JOIN applicants a ON a.id=ap.applicants_id 
+JOIN jobs j ON ap.jobs_id=j.id 
+JOIN company c ON j.company_id=c.id 
+where a.first_name='Advik' AND a.last_name='jha';
+
+/*	name	title	application_date
+	HCL Technologies	Cybersecurity Specialist	2024-04-07 00:00:00*/
+
+/*
+8. Create an SQL query that calculates and displays the average salary offered by all companies for job 
+listings in the "jobs", table. Ensure that the query filters out jobs with a salary of zero.
+*/
+select c.name, AVG(j.salary) 
+from jobs j 
+left join company c ON c.id=j.company_id 
+group by c.name;
+/*		HCL Technologies	1300000
+Infosys	1200000
+Tata Consultancy Services	1000000
+Tech Mahindra	1000000
+Wipro Limited	1100000*/
+
+/*9.Wite an Sql query to identify the company that has posted the most job listings. 
+Display the company name along with the count of job listings they have posted. 
+Handle ties if multiple companies have the same maximum count.
+*/
+select c.name, COUNT(j.company_id) as job_listing
+from jobs j 
+join company c on j.company_id=c.id 
+group by c.name
+limit 1;
+
+/*HCL Technologies	2*/
+
+/*10. Find the applicants who have applied for positions in companies located in 'CityX' and have at
+least 3 years of experiense.
+*/
+select a.first_name, a.last_name
+from company c 
+join jobs j on c.id=j.company_id
+join applications ap on j.id=ap.jobs_id
+join applicants a on a.id=ap.applicants_id
+where c.location='Bangalore';
+/*Aarav	Patel
+Aaradhya	Singh*/
+
+/*11.
+Retrieve a list of distinct job titles with salaries between $60,000 and $80,000.
+*/
+select j.*
+from jobs j
+where j.salary between '1100000' and '1300000';
+
+/*6	Software Engineer	Develop and maintain software applications.	Bangalore	1200000	Full-time	2024-04-10	1
+8	Network Engineer	Design, implement and manage networks.	Noida	1100000	Full-time	2024-04-08	3
+9	Cybersecurity Specialist	Protect systems and networks from cyber threats.	Pune	1300000	Full-time	2024-04-07	4
+13	Blockchain Engineer	Develop CI/CD solutions	Banglore	1300000	Full-time	2024-02-28	4
+							*/ 
+
+/*12.Find the jobs that have not received any applications.*/
+select j.title , c.name , j.location, j.salary
+from jobs j
+join company c on j.company_id = c.id
+where j.id not in (select jobs_id from applications);
+
+/*Blockchain Engineer	HCL Technologies	Banglore	1300000*/
+
+/*13.Retrieve a list of job applicants along with the companies they have applied to and the positions 
+they have applied for.*/
+select a.first_name, a.last_name, c.name, j.title as position
+from company c 
+join jobs j on c.id=j.company_id
+join applications ap on j.id=ap.jobs_id
+join applicants a on a.id=ap.applicants_id;
+
+/*Aarav	Patel	Infosys	Software Engineer
+Ananya	Sharma	Tata Consultancy Services	Data Analyst
+Aaradhya	Singh	Wipro Limited	Network Engineer
+Advik	Jha	HCL Technologies	Cybersecurity Specialist
+Ishaan	Verma	Tech Mahindra	Web Developer*/
+/*
+14. Retrieve a list of companies along with the count of jobs they have posted, 
+even if they have no received any applications.
+*/
+select c.name, count(j.id) AS job_count
+from company c
+left join jobs j ON c.id = j.company_id
+group by c.name;
+/*HCL Technologies	2
+Infosys	1
+Tata Consultancy Services	1
+Tech Mahindra	1
+Wipro Limited	1*/
+/*
+15. List all applicants along with the companies and positions they have applied for, including those
+who have not applied.*/
+
+select a.first_name, a.last_name, c.name, j.title 
+from applications ap 
+left JOIN applicants a ON ap.applicants_id=a.id 
+JOIN jobs j ON j.id=ap.jobs_id 
+JOIN company c ON c.id=j.company_id;
+/*Aarav	Patel	Infosys	Software Engineer
+Ananya	Sharma	Tata Consultancy Services	Data Analyst
+Aaradhya	Singh	Wipro Limited	Network Engineer
+Advik	Jha	HCL Technologies	Cybersecurity Specialist
+Ishaan	Verma	Tech Mahindra	Web Developer*/
+
+/*
+
+16. Find companies that have posted jobs with a salary higher than the average salary of all jobs.
+
+*/
+select c.name from jobs j 
+JOIN company c ON j.company_id=c.id 
+where j.salary>(select avg(salary) from jobs);
+/*Infosys
+HCL Technologies
+HCL Technologies
+*/
+/*17.
+ Display a list of applicants with their names and a concatenated string of their city and state.
+*/
+select CONCAT(a.first_name, ' ', a.last_name) AS applicant_name,
+       CONCAT(a.email, ', ', a.phone) AS email_phone
+from applicants a;
+/*Aarav Patel	aarav.patel@example.com, 987-654-3210
+Ananya Sharma	ananya.sharma@example.com, 123-456-7890
+Aaradhya Singh	aaradhya.singh@example.com, 555-555-5555
+Advik Jha	advik.jha@example.com, 444-444-4444
+Ishaan Verma	ishaan.verma@example.com, 777-777-7777
+Isha Agrawal	isha.agr@example.com, 777-777-7757*/
+/* 18.
+Retrieve a list of jobs with titles containing either 'Developer' or 'Engineer'.
+*/
+select j.title, j.location, j.salary
+from jobs j
+where j.title like '%Developer%' OR j.title like '%Engineer%';
+/*Software Engineer	Bangalore	1200000
+Network Engineer	Noida	1100000
+Web Developer	Bangalore	1000000
+Blockchain Engineer	Banglore	1300000
+*/
+
+/*19.Retrieve a list of applicants and the 
+jobs they have applied for, including those who have not applied and jobs without applicants.
+*/
+select a.first_name, a.last_name, j.title 
+from applications ap 
+RIGHT JOIN applicants a ON ap.applicants_id=a.id 
+RIGHT JOIN jobs j ON ap.jobs_id=j.id;
+/*Aarav	Patel	Software Engineer
+Ananya	Sharma	Data Analyst
+Aaradhya	Singh	Network Engineer
+Advik	Jha	Cybersecurity Specialist
+Ishaan	Verma	Web Developer
+		Blockchain Engineer*/
+
+/*20. List all combinations of applicants and companies where the company is in a specific city and 
+the applicant has more than 2 years of experience. 
+For example: city Chennai
+*/
+select a.first_name, a.last_name, c.id, c.name
+from company c 
+join jobs j on c.id=j.company_id
+join applications ap on j.id=ap.jobs_id
+join applicants a on a.id=ap.applicants_id
+where c.location='Noida';
+
+/*	first_name	last_name	id	name
+	Advik	Jha	4	HCL Technologies
+*/
